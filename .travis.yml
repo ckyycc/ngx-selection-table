@@ -1,0 +1,24 @@
+# Language
+language: node_js
+node_js:
+  - "node"
+
+
+# Branches to build
+branches:
+  only:
+    - master
+
+# Build both library and samples
+script:
+  - npm install
+    && npm install -g ngx-selection-table
+    && npm run packagr
+    
+# Notifications
+notifications:
+  email:
+    recipients:
+      - chengkuang@gmail.com
+    on_success: change
+    on_failure: change
