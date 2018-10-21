@@ -1,0 +1,39 @@
+<table>
+  <tr>
+    <th class="sticky-header" *ngFor="let column of columns" nowrap>{{column=='select'? '': column}}</th>
+  </tr>
+  <tr *ngIf="filter">
+    <td [colSpan]="columns.length">
+      <div class="search">
+        <div class="icon-container">
+          <div class="search-icon" *ngIf="!filterValue">&#9906;</div>
+          <div class="clear-icon" *ngIf="filterValue" (click)="filterValue=''">&times;</div>
+        </div>
+        <input type="text" class="search-input" placeholder="Enter Search Terms Here..." [(ngModel)]="filterValue">
+      </div>
+    </td>
+  </tr>
+  <ng-container *ngFor="let row of tableSourceAfterFiltered">
+    <tr *ngIf="!itemHiddenFlag[row[key]]" (click)="onClick($event, row); $event.stopPropagation()"
+        [id]="row[key]"
+        [title]="tooltipColumn? row[tooltipColumn]? row[tooltipColumn]: '' : ''"
+        [class.selected]="row.checked">
+      <td *ngIf="!row.header && checkbox" class="checkbox">
+        <label class="container">
+          <input type='checkbox' name='check' (change)="onChange($event, row); $event.stopPropagation()" [checked]="row.checked">
+          <span class="checkmark"></span>
+        </label>
+      </td>
+      <th *ngIf="row.header" [colSpan]="columns.length" class="subtopic" (click)="toggleSubTopic($event, row)">
+        <span *ngIf="!isSubTopicHidden(row[key])">&#8722;</span>
+        <span *ngIf="isSubTopicHidden(row[key])">&#43;</span> {{row[headColumn]}}
+      </th>
+      <ng-container *ngIf="!row.header && !checkbox">
+        <td *ngFor="let column of columns">{{row[column]}}</td>
+      </ng-container>
+      <ng-container *ngIf="!row.header && checkbox">
+        <td *ngFor="let column of columns.slice(1)">{{row[column].constructor.name === 'Number'? (row[column] | number:'1.0-2') : row[column] }}</td>
+      </ng-container>
+    </tr>
+  </ng-container>
+</table>
