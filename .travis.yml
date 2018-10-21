@@ -16,7 +16,6 @@ script:
     && npm install -g @angular/core@^6.1.10 
     && npm install -g @angular/forms@^6.1.10 
     && npm install -g @angular/platform-browser@^6.1.10
-    && npm install -g ngx-selection-table
     && npm install -g zone.js@^0.8.26
     && npm install -g rxjs@^6.1.0
     && npm run packagr
