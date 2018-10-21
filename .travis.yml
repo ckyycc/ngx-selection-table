@@ -11,7 +11,10 @@ branches:
 
 # Build both library and samples
 script:
-  - npm install
+  - npm install @angular/common@^6.1.10 
+    && npm install @angular/compiler@^6.1.10 
+    && npm install @angular/core@^6.1.10 
+    && npm install @angular/forms@^6.1.10 
     && npm install -g ngx-selection-table
     && npm run packagr
     
