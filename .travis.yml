@@ -19,6 +19,7 @@ script:
 - npm install zone.js@^0.8.26
 - npm install rxjs@^6.1.0
 - npm run packagr
+- npm test
 
 # Notifications
 notifications:
