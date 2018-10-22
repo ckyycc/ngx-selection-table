@@ -9,17 +9,16 @@ branches:
   only:
   - master
 
+before_install:
+- export CHROME_BIN=chromium-browser
+- export DISPLAY=:99.0
+- sh -e /etc/init.d/xvfb start
+
 # Build
 script:
-- npm install @angular/common@^6.1.10
-- npm install @angular/compiler@^6.1.10
-- npm install @angular/core@^6.1.10
-- npm install @angular/forms@^6.1.10
-- npm install @angular/platform-browser@^6.1.10
-- npm install zone.js@^0.8.26
-- npm install rxjs@^6.1.0
+- npm install
 - npm run packagr
-- npm test
+- ng test
 
 # Notifications
 notifications:
