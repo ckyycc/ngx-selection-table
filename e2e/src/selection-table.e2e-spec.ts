@@ -32,12 +32,12 @@ describe('workspace-project App', () => {
     expect(page.getFirstCheckBoxElement().isSelected()).toBeFalsy();
   });
 
-  it('click on first 20 checkmarks should toggle the check value for all the first 10 checkmarks', () => {
+  it('click on first 10 checkmarks should toggle the check value for all the first 10 checkmarks', () => {
     page.navigateTo();
-    page.getCheckMarkElements().each((e, i) => { if (i < 20) { e.click(); }});
-    page.getCheckBoxElements().each((e, i) =>  { if (i < 20) { expect(e.isSelected()).toBeTruthy(); }});
-    page.getCheckMarkElements().each((e, i) => { if (i < 20) { e.click(); }});
-    page.getCheckBoxElements().each((e, i) =>  { if (i < 20) { expect(e.isSelected()).toBeFalsy(); }});
+    page.getCheckMarkElements().each((e, i) => { if (i < 10) { e.click(); }});
+    page.getCheckBoxElements().each((e, i) =>  { if (i < 10) { expect(e.isSelected()).toBeTruthy(); }});
+    page.getCheckMarkElements().each((e, i) => { if (i < 10) { e.click(); }});
+    page.getCheckBoxElements().each((e, i) =>  { if (i < 10) { expect(e.isSelected()).toBeFalsy(); }});
   });
 
   it('click on first sub item should toggle the check value (filter === true)', () => {
