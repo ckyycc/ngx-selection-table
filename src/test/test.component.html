@@ -1,0 +1,18 @@
+<div style="width:25%; float: left">
+<ngx-selection-table (change)="selectItem($event)"
+                 [filter]="true"
+                 [checkbox]="true"
+                 [tableSource]="tableSource"
+                 [keyColumn]="'ID'"
+                 [hiddenColumns]="['_YScaleGroup', 'ID', 'CK']"
+                 [tooltipColumn]="'CK'"
+                 [searchStyle]="'searchWithSubHeader'"
+                 [multiSelection]="true"
+                 [searchColumn]="'KPI'"
+                 [clickToSelect]="true">
+</ngx-selection-table>
+</div>
+
+<div style="width:60%; float: right">
+  {{tables}}
+</div>

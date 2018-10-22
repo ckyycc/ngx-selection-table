@@ -19,6 +19,7 @@ script:
 - npm install
 - npm run packagr
 - ng test --watch=false
+- ng e2e
 
 # Notifications
 notifications:
