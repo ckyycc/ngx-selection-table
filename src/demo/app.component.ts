@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './test.component.html',
+  templateUrl: './app.component.html',
 })
-export class TestComponent {
+export class AppComponent {
   hiddenColumns = ['_YScaleGroup', 'ID', 'CK'];
   tableSource =  [
     {ID: 1, KPI: 'Host', header: true},

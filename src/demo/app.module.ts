@@ -1,17 +1,17 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { SelectionTableModule } from '../ngx-selection-table';
-import { TestComponent } from './test.component';
+import { AppComponent } from './app.component';
 
 @NgModule({
   declarations: [
-    TestComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
     SelectionTableModule,
   ],
   providers: [],
-  bootstrap: [TestComponent]
+  bootstrap: [AppComponent]
 })
-export class TestModule { }
+export class AppModule { }
