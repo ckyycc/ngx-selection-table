@@ -1,0 +1,84 @@
+:host {
+  $defaultBorderRadius: 4px;
+  $fontFamily: Helvetica, Arial, "Microsoft YaHei", "微软雅黑", SimSun, "宋体", Heiti, "黑体", sans-serif;
+  $color: #575757;
+  *, *:before, *:after {
+    font-size: inherit;
+    font-weight: inherit;
+    font-family: inherit;
+    box-sizing: inherit;
+    background: inherit;
+  }
+  .vertical-center {
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+  }
+  .hover-box {
+    outline: 0;
+    box-shadow: 0 0 6px rgba(35, 173, 278, 1);
+    border-radius: $defaultBorderRadius;
+  }
+  .header {
+    padding-left: 50px;
+    width: 800px;
+    height: 40px;
+    box-sizing: border-box;
+    background: white;
+    position: relative;
+    font-family: $fontFamily;
+    .header-content {
+      width: 100%;
+      .header-title {
+        color: $color;
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+        @extend .vertical-center;
+        .header-title-link{
+          text-decoration: none;
+          color: cornflowerblue;
+        }
+      }
+      .header-github {
+        left: 710px;
+        @extend .vertical-center;
+        border: inset 10px transparent;
+        border-radius: $defaultBorderRadius;
+        height: 34px;
+        width: 140px;
+        color: black;
+        text-decoration: none;
+        text-align: center;
+        font-size: 14px;
+        padding-left: 23px;
+        background: url('../assets/GitHub-Mark-32px.png') no-repeat left center;
+        background-size: 16px;
+        -webkit-filter: opacity(50%);
+        filter: opacity(50%);
+        &:hover {
+          @extend .hover-box;
+          -webkit-filter: opacity(85%);
+          filter: opacity(85%);
+        }
+      }
+    }
+    hr {
+      position:absolute;
+      width: 100%;
+      top: 100%;
+      display: block;
+      border: 0;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      border-bottom: 0 solid rgba(255, 255, 255, 0.3);
+    }
+  }
+  .configuration {
+    font-family: $fontFamily;
+    font-size: 14px;
+    padding-top: 20px;
+    padding-bottom: 10px;
+    color: $color;
+  }
+}

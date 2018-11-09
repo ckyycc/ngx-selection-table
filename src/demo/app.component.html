@@ -1,18 +1,31 @@
-<div style="width:25%; float: left">
-<ngx-selection-table (change)="selectItem($event)"
-                 [filter]="true"
-                 [checkbox]="true"
-                 [tableSource]="tableSource"
-                 [keyColumn]="'ID'"
-                 [hiddenColumns]="['_YScaleGroup', 'ID', 'CK']"
-                 [tooltipColumn]="'CK'"
-                 [searchStyle]="'searchWithSubHeader'"
-                 [multiSelection]="true"
-                 [searchColumn]="'KPI'"
-                 [clickToSelect]="true">
-</ngx-selection-table>
-</div>
+  <div class="header">
+    <div class="header-content">
+      <span class="header-title">Example of <a class="header-title-link" href="https://www.npmjs.com/package/ngx-selection-table" target="_blank">ngx-selection-table</a> library</span>
+      <a class="header-github" href="https://github.com/ckyycc/ngx-selection-table" target="_blank">View on Github</a>
+    </div>
+    <hr>
+  </div>
 
-<div style="width:60%; float: right">
-  {{tables}}
-</div>
+  <div style="width:800px; padding-left: 50px">
+    <div class="configuration">
+      <label>
+        <input type='checkbox' name='filter' [checked]="filter" (change)="filter = !filter"> filter
+        <input type='checkbox' name='checkbox' [checked]="checkbox" (change)="checkbox = !checkbox"> checkbox
+        <input type='checkbox' name='multiSelection' [checked]="multiSelection" (change)="multiSelection = !multiSelection"> multiSelection
+        <input type='checkbox' name='clickToSelect' [checked]="clickToSelect" (change)="clickToSelect = !clickToSelect"> clickToSelect
+        <input type='checkbox' name='hiddenColumns' [checked]="hiddenColumnsFlag" (change)="hiddenColumnsFlag = !hiddenColumnsFlag"> hiddenColumns
+      </label>
+    </div>
+    <ngx-selection-table (change)="selectItem($event)"
+                     [filter]="filter"
+                     [checkbox]="checkbox"
+                     [tableSource]="tableSource"
+                     [keyColumn]="'ID'"
+                     [hiddenColumns]="realHiddenColumns"
+                     [tooltipColumn]="'TT'"
+                     [searchStyle]="'searchAll'"
+                     [multiSelection]="multiSelection"
+                     [searchColumn]="'KPI'"
+                     [clickToSelect]="clickToSelect">
+    </ngx-selection-table>
+  </div>
