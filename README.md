@@ -8,8 +8,8 @@ An Angular 6 module for selecting data from table with checkbox, filter and coll
 ```bash
 npm install ngx-selection-table --save
 ```
-## Demo
-![small_demo_selection_table](https://raw.githubusercontent.com/ckyycc/ngx-selection-table/master/src/demo/small-demo.gif)
+## DEMO
+Check out the [DEMO](https://ckyycc.github.io/ngx-selection-table/) for more information!
 
 ## Usage
 

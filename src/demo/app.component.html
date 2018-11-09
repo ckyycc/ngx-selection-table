@@ -9,14 +9,22 @@
   <div style="width:800px; padding-left: 50px">
     <div class="configuration">
       <label>
-        <input type='checkbox' name='filter' [checked]="filter" (change)="filter = !filter"> filter
-        <input type='checkbox' name='checkbox' [checked]="checkbox" (change)="checkbox = !checkbox"> checkbox
-        <input type='checkbox' name='multiSelection' [checked]="multiSelection" (change)="multiSelection = !multiSelection"> multiSelection
-        <input type='checkbox' name='clickToSelect' [checked]="clickToSelect" (change)="clickToSelect = !clickToSelect"> clickToSelect
-        <input type='checkbox' name='hiddenColumns' [checked]="hiddenColumnsFlag" (change)="hiddenColumnsFlag = !hiddenColumnsFlag"> hiddenColumns
+        <input type='checkbox' id="filter" name='filter' [checked]="filter" (change)="filter = !filter"> filter
+      </label>
+      <label>
+        <input type='checkbox' id="checkbox" name='checkbox' [checked]="checkbox" (change)="checkbox = !checkbox"> checkbox
+      </label>
+      <label>
+        <input type='checkbox' id="multiSelection" name='multiSelection' [checked]="multiSelection" (change)="multiSelection = !multiSelection"> multiSelection
+      </label>
+      <label>
+        <input type='checkbox' id="clickToSelect" name='clickToSelect' [checked]="clickToSelect" (change)="clickToSelect = !clickToSelect"> clickToSelect
+      </label>
+      <label>
+        <input type='checkbox' id="hiddenColumns" name='hiddenColumns' [checked]="hiddenColumnsFlag" (change)="hiddenColumnsFlag = !hiddenColumnsFlag"> hiddenColumns
       </label>
     </div>
-    <ngx-selection-table (change)="selectItem($event)"
+    <ngx-selection-table (change)="selectItem()"
                      [filter]="filter"
                      [checkbox]="checkbox"
                      [tableSource]="tableSource"
