@@ -9,13 +9,13 @@ describe('workspace-project App', () => {
 
   it('should display a list of item', () => {
     page.navigateTo();
-    expect(page.getSelectionTableRows().count()).toEqual(36);
+    expect(page.getSelectionTableRows().count()).toEqual(14);
   });
 
   it('click sub header should hide all children', () => {
     page.navigateTo();
     page.getFirstSubHeadElement().click();
-    expect(page.getSelectionTableRows().count()).toEqual(24);
+    expect(page.getSelectionTableRows().count()).toEqual(11);
   });
 
   it('click all sub headers should hide all items', () => {
@@ -48,12 +48,12 @@ describe('workspace-project App', () => {
     expect(page.getFirstCheckBoxElement().isSelected()).toBeFalsy();
   });
 
-  it('click on first 5 sub items should toggle the check values (filter === true)', () => {
+  it('click on first 3 sub items should toggle the check values (filter === true)', () => {
     page.navigateTo();
-    page.getSelectionTableRows().each((e, i) => { if (i > 2 && i < 8) { e.click(); }});
-    page.getCheckBoxElements().each((e, i) =>   { if (i < 5) { expect(e.isSelected()).toBeTruthy(); }});
-    page.getSelectionTableRows().each((e, i) =>  { if (i > 2 && i < 8) { e.click(); }});
-    page.getCheckBoxElements().each((e, i) =>   { if (i < 5) { expect(e.isSelected()).toBeFalsy(); }});
+    page.getSelectionTableRows().each((e, i) => { if (i > 2 && i < 6) { e.click(); }});
+    page.getCheckBoxElements().each((e, i) =>   { if (i < 3) { expect(e.isSelected()).toBeTruthy(); }});
+    page.getSelectionTableRows().each((e, i) =>  { if (i > 2 && i < 6) { e.click(); }});
+    page.getCheckBoxElements().each((e, i) =>   { if (i < 3) { expect(e.isSelected()).toBeFalsy(); }});
   });
 
 });
