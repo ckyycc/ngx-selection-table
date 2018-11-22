@@ -18,9 +18,7 @@ Check out the [DEMO](https://ckyycc.github.io/ngx-selection-table/) for more inf
 import { SelectionTableModule } from 'ngx-selection-table';
 
 @NgModule({
-  declarations: [
-    ...
-  ],
+  declarations: [...],
   imports: [
     SelectionTableModule,
     ...
@@ -33,7 +31,6 @@ export class AppModule { }
 
 ### Enabling Selection Table
 ```HTML
-<div style="width:25%; float: left">
 <ngx-selection-table 
                  (change)="selectItem($event)"
                  [tableSource]="tableSource"
@@ -47,7 +44,6 @@ export class AppModule { }
                  [multiSelection]="true"
                  [clickToSelect]="true">
 </ngx-selection-table>
-</div>
 ```
 
 ## Parameters
