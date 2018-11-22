@@ -15,27 +15,22 @@ Check out the [DEMO](https://ckyycc.github.io/ngx-selection-table/) for more inf
 
 ### Importing The 'ngx-selection-table' Module
 ```TypeScript
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-
-import { AppComponent } from './app.component';
-import { SelectionTableModule } from '../ngx-selection-table';
-
+import { SelectionTableModule } from 'ngx-selection-table';
 
 @NgModule({
   declarations: [
-    AppComponent
+    ...
   ],
   imports: [
-    BrowserModule,
     SelectionTableModule,
+    ...
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [...]
 })
 export class AppModule { }
-
 ```
+
 ### Enabling Selection Table
 ```HTML
 <div style="width:25%; float: left">
