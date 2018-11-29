@@ -82,7 +82,7 @@ Search String | Search Style | Result
 'Host' | searchWithSubHeader | 'Host'
 'Host' | searchInChildren | empty
 
-## Todo
+Todo
 ----
 * Support Angular 7
 * ...
