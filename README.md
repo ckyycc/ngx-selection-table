@@ -82,6 +82,7 @@ Search String | Search Style | Result
 'Host' | searchWithSubHeader | 'Host'
 'Host' | searchInChildren | empty
 
-## License
-
-[MIT](/LICENSE)
+## Todo
+----
+* Support Angular 7
+* ...
