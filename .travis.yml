@@ -22,7 +22,7 @@ before_install:
 
 # Build
 script:
-- rm -f package-lock.json && npm install
+- npm install
 - npm run packagr
 - ng test --watch=false
 - ng e2e
