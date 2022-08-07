@@ -2,8 +2,8 @@
 
 [![npm](https://img.shields.io/npm/v/ngx-selection-table.svg?style=flat-square)](https://www.npmjs.com/package/ngx-selection-table) [![npm downloads](https://img.shields.io/npm/dm/ngx-selection-table.svg)](https://www.npmjs.com/package/ngx-selection-table) [![Travis](https://img.shields.io/travis/ckyycc/ngx-selection-table.svg?style=flat-square)](https://travis-ci.org/ckyycc/ngx-selection-table) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/ckyycc/ngx-selection-table/blob/master/LICENSE)
 
-An Angular 7 module for selecting data from table with checkbox, filter and collapsible/expandable sub title.\
-For Angular 6 support please use older versions.
+An Angular 13 module for selecting data from table with checkbox, filter and collapsible/expandable sub title.\
+For Angular 6 / 7 support please use older versions.
 
 ## Installation
 ```bash
@@ -85,7 +85,7 @@ Search String | Search Style | Result
 
 Todo
 ----
-* ~~Support Angular 7~~
+* ~~Support Angular 13~~
 * ...
 
 ## License
