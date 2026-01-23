@@ -1,9 +1,11 @@
 import {Component} from '@angular/core';
+import { SelectionTableComponent } from '../ngx-selection-table';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  imports: [SelectionTableComponent]
 })
 export class AppComponent {
   filter = true;
