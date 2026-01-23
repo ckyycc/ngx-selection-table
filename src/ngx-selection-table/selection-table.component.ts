@@ -1,4 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Component, EventEmitter, Output, input, signal, computed } from '@angular/core';
 
 enum SearchType {
   searchWithSubHeader = 'searchWithSubHeader',
@@ -13,67 +15,66 @@ const AUX_SELECT  = 'select';
 @Component({
   selector: 'ngx-selection-table',
   templateUrl: './selection-table.component.html',
-  styleUrls: ['./selection-table.component.scss']
+  styleUrls: ['./selection-table.component.scss'],
+  standalone: true,
+  imports: [ CommonModule, FormsModule ]
 })
 
 export class SelectionTableComponent {
-  filterValue: string;
-  itemHiddenFlag = {};
-  @Input()
+  // Signals for reactive state
+  filterValue = signal<string>('');
+  itemHiddenFlag = signal<{[key: string]: boolean | undefined}>({});
+
+  // Input signals
   /**
    * Flag for showing the filter input box
    */
-  filter: boolean;
-  @Input()
+  filter = input<boolean>();
+  
   /**
    * name of the key column
    */
-  keyColumn: string;
-  @Input()
+  keyColumn = input<string>();
+  
   /**
    * table data
    */
-  tableSource: any[];
-  @Input()
+  tableSource = input<any[]>();
+  
   /**
    * Flag for showing the checkbox
    */
-  checkbox = true;
-  @Input()
+  checkbox = input<boolean>(true);
+  
   /**
    * Flag for multiple selection
    */
-  multiSelection = true;
+  multiSelection = input<boolean>(true);
 
-  @Input()
   /**
    * Flag for click row to select
    */
-  clickToSelect = true;
+  clickToSelect = input<boolean>(true);
 
-  @Input()
   /**
    * columns need to be hidden
    */
-  hiddenColumns: string[];
+  hiddenColumns = input<string[]>();
 
-  @Input()
   /**
    * column used for tooltip
    */
-  tooltipColumn: string;
+  tooltipColumn = input<string>();
 
-  @Input()
   /**
    * search style for the filter
    */
-  searchStyle = SearchType.searchInChildren;
+  searchStyle = input<SearchType>(SearchType.searchInChildren);
 
-  @Input()
   /**
    * search column for the filter
    */
-  searchColumn: string;
+  searchColumn = input<string>();
 
   /**
    * selection change event
@@ -84,7 +85,7 @@ export class SelectionTableComponent {
    * triggered by clicking the <tr>
    */
   onClick(e, row) {
-    if (this.clickToSelect) {
+    if (this.clickToSelect()) {
       this.onChange(e, row);
     }
   }
@@ -97,11 +98,12 @@ export class SelectionTableComponent {
   onChange(event, row) {
     if (!row.header) {
       row.checked = !row.checked;
-      if (row.checked && !this.multiSelection) {
+      if (row.checked && !this.multiSelection()) {
         // unSelect other selected ones
-        if (this.tableSource) {
-          for (const tableRow of this.tableSource) {
-            if (tableRow.checked && tableRow[this.key] !== row[this.key]) {
+        const tableSource = this.tableSource();
+        if (tableSource) {
+          for (const tableRow of tableSource) {
+            if (tableRow.checked && tableRow[this.key()] !== row[this.key()]) {
               tableRow.checked = false;
             }
           }
@@ -116,40 +118,50 @@ export class SelectionTableComponent {
    * Get all the columns that need to be displayed.
    * "header", "checked" and columns in hiddenColumns will be excluded.
    */
-  get columns(): string[] {
-    if (this.tableSource && this.tableSource.length > 0) {
-      const hiddenColumns = this.hiddenColumns ? this.hiddenColumns : [];
-      const tableRow = this.tableSource.find(row => !row.header);
-      const keys = Object.keys(tableRow).filter(key => (![AUX_HEADER, AUX_CHECKED].includes(key) && !hiddenColumns.includes(key)));
-      if (this.checkbox) {
-        return [AUX_SELECT].concat(keys);
-      } else {
-        return keys;
+  columns = computed<string[]>(() => {
+    const tableSource = this.tableSource();
+    if (tableSource && tableSource.length > 0) {
+      const hiddenColumns = this.hiddenColumns() || [];
+      const tableRow = tableSource.find(row => !row.header);
+      if (tableRow) {
+        const keys = Object.keys(tableRow).filter(key => (![AUX_HEADER, AUX_CHECKED].includes(key) && !hiddenColumns.includes(key)));
+        if (this.checkbox()) {
+          return [AUX_SELECT].concat(keys);
+        } else {
+          return keys;
+        }
       }
     }
-  }
+    return [];
+  });
 
   /**
    * Get the text for the subtitle column
    * 'select', 'header', 'checked' and columns in hiddenColumns will be excluded.
    * Return the first item if there are multiple items in the subtitle row.
    */
-  get headColumn(): string {
-    if (this.tableSource && this.tableSource.length > 0) {
-      const hiddenColumns = this.hiddenColumns ? this.hiddenColumns : [];
-      const tableRow = this.tableSource.find(row => row.header);
-      const keys = Object.keys(tableRow).filter(
-        key => (![AUX_SELECT, AUX_HEADER, AUX_CHECKED].includes(key) && !hiddenColumns.includes(key)));
-      return keys[0];
+  headColumn = computed<string>(() => {
+    const tableSource = this.tableSource();
+    if (tableSource && tableSource.length > 0) {
+      const hiddenColumns = this.hiddenColumns() || [];
+      const tableRow = tableSource.find(row => row.header);
+      if (tableRow) {
+        const keys = Object.keys(tableRow).filter(
+          key => (![AUX_SELECT, AUX_HEADER, AUX_CHECKED].includes(key) && !hiddenColumns.includes(key)));
+        return keys[0];
+      }
     }
-  }
+    return '';
+  });
 
   /**
    * Get the key column. If it is empty, use the first column (excluded the selection column).
    */
-  get key(): string {
-    return this.keyColumn ? this.keyColumn : this.checkbox ? this.columns[1] : this.columns[0];
-  }
+  key = computed<string>(() => {
+    const keyColumn = this.keyColumn();
+    const columns = this.columns();
+    return keyColumn ? keyColumn : this.checkbox() ? columns[1] : columns[0];
+  });
 
   /**
    * Get the table source after the filter being applied.
@@ -160,47 +172,61 @@ export class SelectionTableComponent {
    * searchInChildren:    search excluding the sub header,
    *                      if any children are picked, the relative parent will be picked as well
    */
-  get tableSourceAfterFiltered() {
-    if (!this.searchColumn) {
-      return;
+  tableSourceAfterFiltered = computed<any[]>(() => {
+    const searchColumn = this.searchColumn();
+    const tableSource = this.tableSource();
+    
+    if (!searchColumn || !tableSource) {
+      return [];
     }
 
     let filter;
-    if (this.filterValue) {
-      filter = this.filterValue.toUpperCase();
+    const filterValue = this.filterValue();
+    if (filterValue) {
+      filter = filterValue.toUpperCase();
     }
-    switch (this.searchStyle) {
+    
+    const searchStyle = this.searchStyle();
+    const key = this.key();
+    
+    switch (searchStyle) {
       // search including the sub header (only), if any children are picked, the relative parent will be picked as well
       case SearchType.searchWithSubHeader:
-        return this.tableSource.filter(row => !filter || filter.length === 0 ||
-          row[this.searchColumn].toUpperCase().includes(filter) ||
-          (row.header && this._getSubSearchItems(row[this.key]).findIndex(item => item.toUpperCase().includes(filter)) >= 0));
+        return tableSource.filter(row => !filter || filter.length === 0 ||
+          row[searchColumn].toUpperCase().includes(filter) ||
+          (row.header && this._getSubSearchItems(row[key]).findIndex(item => item.toUpperCase().includes(filter)) >= 0));
       // search including the sub header, all it's children will be picked as well,
       // if any children are picked, the relative parent will be picked as well
       case SearchType.searchAll:
-        return this.tableSource.filter(row => !filter || filter.length === 0 ||
-          row[this.searchColumn].toUpperCase().includes(filter) ||
-          (!row.header && this._getParentSearchItem(row[this.key]).toUpperCase().includes(filter)) ||
-          (row.header && this._getSubSearchItems(row[this.key]).findIndex(item => item.toUpperCase().includes(filter)) >= 0)
+        return tableSource.filter(row => !filter || filter.length === 0 ||
+          row[searchColumn].toUpperCase().includes(filter) ||
+          (!row.header && this._getParentSearchItem(row[key]).toUpperCase().includes(filter)) ||
+          (row.header && this._getSubSearchItems(row[key]).findIndex(item => item.toUpperCase().includes(filter)) >= 0)
         );
       // search excluding the sub header, if any children are picked, the relative parent will be picked as well
       case SearchType.searchInChildren:
       default:
-        return this.tableSource.filter(row => !filter || filter.length === 0 ||
-          !row.header && row[this.searchColumn].toUpperCase().includes(filter) ||
-          (row.header && this._getSubSearchItems(row[this.key]).findIndex(item => item.toUpperCase().includes(filter)) >= 0));
+        return tableSource.filter(row => !filter || filter.length === 0 ||
+          !row.header && row[searchColumn].toUpperCase().includes(filter) ||
+          (row.header && this._getSubSearchItems(row[key]).findIndex(item => item.toUpperCase().includes(filter)) >= 0));
     }
-  }
+  });
 
   /**
    * Toggle the sub items of current row
    */
   toggleSubTopic(event, row) {
-    if (this.key != null) {
-      this._getSubItems(row[this.key]).forEach(key => this.itemHiddenFlag[key] = !this.itemHiddenFlag[key]);
+    const key = this.key();
+    if (key != null) {
+      const currentFlags = this.itemHiddenFlag();
+      const newFlags = { ...currentFlags };
+      
+      this._getSubItems(row[key]).forEach(subKey => newFlags[subKey] = !newFlags[subKey]);
       // undefined --> all sub items are showing,
       // false -> all sub items are hidden
-      this.itemHiddenFlag[row[this.key]] = this.itemHiddenFlag[row[this.key]] === undefined ? false : undefined;
+      newFlags[row[key]] = newFlags[row[key]] === undefined ? false : undefined;
+      
+      this.itemHiddenFlag.set(newFlags);
     }
   }
 
@@ -210,39 +236,54 @@ export class SelectionTableComponent {
   isSubTopicHidden(key) {
     // undefined --> all sub items are showing,
     // false -> all sub items are hidden
-    return this.itemHiddenFlag[key] === false;
+    return this.itemHiddenFlag()[key] === false;
   }
 
   /**
    * get all sub items by key.
    */
   private _getSubItems(key): string[] {
-    const startIndex = this.tableSource.findIndex(row => row[this.key] === key && row.header);
-    if (this.tableSource.length <= startIndex + 1 || startIndex < 0) {
+    const tableSource = this.tableSource();
+    const keyColumn = this.key();
+    
+    if (!tableSource || !keyColumn) {
+      return [];
+    }
+    
+    const startIndex = tableSource.findIndex(row => row[keyColumn] === key && row.header);
+    if (tableSource.length <= startIndex + 1 || startIndex < 0) {
       // the header is the last one, or can't find it, return empty directly
       return [];
     }
 
-    let endIndex = this.tableSource.slice(startIndex + 1).findIndex(row => row.header);
+    let endIndex = tableSource.slice(startIndex + 1).findIndex(row => row.header);
 
     if (endIndex < 0 ) {
       // no next header, set index as last item
-      endIndex = this.tableSource.length - 1;
+      endIndex = tableSource.length - 1;
     }
-    return this.tableSource.slice(startIndex + 1, startIndex + endIndex + 1).map(row => row[this.key]);
+    return tableSource.slice(startIndex + 1, startIndex + endIndex + 1).map(row => row[keyColumn]);
   }
 
   /**
    * Get parent item of the provided key row
    */
   private _getParentSearchItem(key): string {
-    const childIndex = this.tableSource.findIndex(row => row[this.key] === key && !row.header);
+    const tableSource = this.tableSource();
+    const keyColumn = this.key();
+    const searchColumn = this.searchColumn();
+    
+    if (!tableSource || !keyColumn || !searchColumn) {
+      return '';
+    }
+    
+    const childIndex = tableSource.findIndex(row => row[keyColumn] === key && !row.header);
     if (childIndex < 0) {
       return '';
     }
-    const slicedTable = this.tableSource.slice(0, childIndex);
+    const slicedTable = tableSource.slice(0, childIndex);
     const parentIndex = slicedTable.map(row => row.header).lastIndexOf(true);
-    return parentIndex >= 0 ? slicedTable[parentIndex][this.searchColumn] : '';
+    return parentIndex >= 0 ? slicedTable[parentIndex][searchColumn] : '';
   }
 
   /**
@@ -250,9 +291,13 @@ export class SelectionTableComponent {
    */
   private _getSubSearchItems(key): string[] {
     const keys = this._getSubItems(key);
-    if (!keys || keys.length === 0) {
+    const tableSource = this.tableSource();
+    const keyColumn = this.key();
+    const searchColumn = this.searchColumn();
+    
+    if (!keys || keys.length === 0 || !tableSource || !keyColumn || !searchColumn) {
       return [];
     }
-    return this.tableSource.filter(row => keys.includes(row[this.key])).map(row => row[this.searchColumn]);
+    return tableSource.filter(row => keys.includes(row[keyColumn])).map(row => row[searchColumn]);
   }
 }
