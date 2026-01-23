@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Component, EventEmitter, Output, input, signal, computed } from '@angular/core';
+import { Component, EventEmitter, Output, input, signal, computed, effect } from '@angular/core';
 
 enum SearchType {
   searchWithSubHeader = 'searchWithSubHeader',
@@ -21,9 +21,20 @@ const AUX_SELECT  = 'select';
 })
 
 export class SelectionTableComponent {
+  // Internal table state with shallow copy to avoid shared references
+  private readonly _tableState = signal<any[]>([]);
+  readonly tableState = this._tableState.asReadonly();
+  
   // Signals for reactive state
   filterValue = signal<string>('');
   itemHiddenFlag = signal<{[key: string]: boolean | undefined}>({});
+
+  constructor() {
+    effect(() => {
+      const src = this.tableSource() ?? [];
+      this._tableState.set(src.map(r => ({ ...r })));
+    }, { allowSignalWrites: true });
+  }
 
   // Input signals
   /**
@@ -81,6 +92,7 @@ export class SelectionTableComponent {
    */
   @Output() change = new EventEmitter<any>();
 
+
   /**
    * triggered by clicking the <tr>
    */
@@ -97,19 +109,27 @@ export class SelectionTableComponent {
    */
   onChange(event, row) {
     if (!row.header) {
-      row.checked = !row.checked;
-      if (row.checked && !this.multiSelection()) {
-        // unSelect other selected ones
-        const tableSource = this.tableSource();
-        if (tableSource) {
-          for (const tableRow of tableSource) {
-            if (tableRow.checked && tableRow[this.key()] !== row[this.key()]) {
-              tableRow.checked = false;
-            }
-          }
+      const key = this.key();
+      const currentState = this.tableState();
+      
+      // Create updated state with immutable updates
+      const updatedState = currentState.map(tableRow => {
+        if (tableRow[key] === row[key]) {
+          // Toggle the current row's checked state
+          return { ...tableRow, checked: !tableRow.checked };
+        } else if (!this.multiSelection() && !row.checked && tableRow.checked) {
+          // If multiSelection is false and we're checking a new row, uncheck others
+          return { ...tableRow, checked: false };
         }
-      }
-      event.tableRow = row;
+        return tableRow;
+      });
+      
+      // Update internal state - this will trigger reactivity
+      this._tableState.set(updatedState);
+      
+      // Find the updated row for the event
+      const updatedRow = updatedState.find(r => r[key] === row[key]);
+      event.tableRow = updatedRow;
       this.change.emit(event);
     }
   }
@@ -119,10 +139,10 @@ export class SelectionTableComponent {
    * "header", "checked" and columns in hiddenColumns will be excluded.
    */
   columns = computed<string[]>(() => {
-    const tableSource = this.tableSource();
-    if (tableSource && tableSource.length > 0) {
+    const tableState = this.tableState();
+    if (tableState && tableState.length > 0) {
       const hiddenColumns = this.hiddenColumns() || [];
-      const tableRow = tableSource.find(row => !row.header);
+      const tableRow = tableState.find(row => !row.header);
       if (tableRow) {
         const keys = Object.keys(tableRow).filter(key => (![AUX_HEADER, AUX_CHECKED].includes(key) && !hiddenColumns.includes(key)));
         if (this.checkbox()) {
@@ -141,10 +161,10 @@ export class SelectionTableComponent {
    * Return the first item if there are multiple items in the subtitle row.
    */
   headColumn = computed<string>(() => {
-    const tableSource = this.tableSource();
-    if (tableSource && tableSource.length > 0) {
+    const tableState = this.tableState();
+    if (tableState && tableState.length > 0) {
       const hiddenColumns = this.hiddenColumns() || [];
-      const tableRow = tableSource.find(row => row.header);
+      const tableRow = tableState.find(row => row.header);
       if (tableRow) {
         const keys = Object.keys(tableRow).filter(
           key => (![AUX_SELECT, AUX_HEADER, AUX_CHECKED].includes(key) && !hiddenColumns.includes(key)));
@@ -174,9 +194,9 @@ export class SelectionTableComponent {
    */
   tableSourceAfterFiltered = computed<any[]>(() => {
     const searchColumn = this.searchColumn();
-    const tableSource = this.tableSource();
+    const tableState = this.tableState();
     
-    if (!searchColumn || !tableSource) {
+    if (!searchColumn || !tableState) {
       return [];
     }
 
@@ -192,13 +212,13 @@ export class SelectionTableComponent {
     switch (searchStyle) {
       // search including the sub header (only), if any children are picked, the relative parent will be picked as well
       case SearchType.searchWithSubHeader:
-        return tableSource.filter(row => !filter || filter.length === 0 ||
+        return tableState.filter(row => !filter || filter.length === 0 ||
           row[searchColumn].toUpperCase().includes(filter) ||
           (row.header && this._getSubSearchItems(row[key]).findIndex(item => item.toUpperCase().includes(filter)) >= 0));
       // search including the sub header, all it's children will be picked as well,
       // if any children are picked, the relative parent will be picked as well
       case SearchType.searchAll:
-        return tableSource.filter(row => !filter || filter.length === 0 ||
+        return tableState.filter(row => !filter || filter.length === 0 ||
           row[searchColumn].toUpperCase().includes(filter) ||
           (!row.header && this._getParentSearchItem(row[key]).toUpperCase().includes(filter)) ||
           (row.header && this._getSubSearchItems(row[key]).findIndex(item => item.toUpperCase().includes(filter)) >= 0)
@@ -206,7 +226,7 @@ export class SelectionTableComponent {
       // search excluding the sub header, if any children are picked, the relative parent will be picked as well
       case SearchType.searchInChildren:
       default:
-        return tableSource.filter(row => !filter || filter.length === 0 ||
+        return tableState.filter(row => !filter || filter.length === 0 ||
           !row.header && row[searchColumn].toUpperCase().includes(filter) ||
           (row.header && this._getSubSearchItems(row[key]).findIndex(item => item.toUpperCase().includes(filter)) >= 0));
     }
@@ -243,45 +263,45 @@ export class SelectionTableComponent {
    * get all sub items by key.
    */
   private _getSubItems(key): string[] {
-    const tableSource = this.tableSource();
+    const tableState = this.tableState();
     const keyColumn = this.key();
     
-    if (!tableSource || !keyColumn) {
+    if (!tableState || !keyColumn) {
       return [];
     }
     
-    const startIndex = tableSource.findIndex(row => row[keyColumn] === key && row.header);
-    if (tableSource.length <= startIndex + 1 || startIndex < 0) {
+    const startIndex = tableState.findIndex(row => row[keyColumn] === key && row.header);
+    if (tableState.length <= startIndex + 1 || startIndex < 0) {
       // the header is the last one, or can't find it, return empty directly
       return [];
     }
 
-    let endIndex = tableSource.slice(startIndex + 1).findIndex(row => row.header);
+    let endIndex = tableState.slice(startIndex + 1).findIndex(row => row.header);
 
     if (endIndex < 0 ) {
       // no next header, set index as last item
-      endIndex = tableSource.length - 1;
+      endIndex = tableState.length - 1;
     }
-    return tableSource.slice(startIndex + 1, startIndex + endIndex + 1).map(row => row[keyColumn]);
+    return tableState.slice(startIndex + 1, startIndex + endIndex + 1).map(row => row[keyColumn]);
   }
 
   /**
    * Get parent item of the provided key row
    */
   private _getParentSearchItem(key): string {
-    const tableSource = this.tableSource();
+    const tableState = this.tableState();
     const keyColumn = this.key();
     const searchColumn = this.searchColumn();
     
-    if (!tableSource || !keyColumn || !searchColumn) {
+    if (!tableState || !keyColumn || !searchColumn) {
       return '';
     }
     
-    const childIndex = tableSource.findIndex(row => row[keyColumn] === key && !row.header);
+    const childIndex = tableState.findIndex(row => row[keyColumn] === key && !row.header);
     if (childIndex < 0) {
       return '';
     }
-    const slicedTable = tableSource.slice(0, childIndex);
+    const slicedTable = tableState.slice(0, childIndex);
     const parentIndex = slicedTable.map(row => row.header).lastIndexOf(true);
     return parentIndex >= 0 ? slicedTable[parentIndex][searchColumn] : '';
   }
@@ -291,13 +311,13 @@ export class SelectionTableComponent {
    */
   private _getSubSearchItems(key): string[] {
     const keys = this._getSubItems(key);
-    const tableSource = this.tableSource();
+    const tableState = this.tableState();
     const keyColumn = this.key();
     const searchColumn = this.searchColumn();
     
-    if (!keys || keys.length === 0 || !tableSource || !keyColumn || !searchColumn) {
+    if (!keys || keys.length === 0 || !tableState || !keyColumn || !searchColumn) {
       return [];
     }
-    return tableSource.filter(row => keys.includes(row[keyColumn])).map(row => row[searchColumn]);
+    return tableState.filter(row => keys.includes(row[keyColumn])).map(row => row[searchColumn]);
   }
 }
