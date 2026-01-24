@@ -1,11 +1,11 @@
 import {Component} from '@angular/core';
-import { SelectionTableComponent } from '../ngx-selection-table';
+import { SearchType, SelectionTableComponent } from '../ngx-selection-table';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [SelectionTableComponent]
+  imports: [ SelectionTableComponent ]
 })
 export class AppComponent {
   filter = true;
@@ -14,6 +14,7 @@ export class AppComponent {
   clickToSelect = true;
   hiddenColumns = ['_YScaleGroup', 'ID', 'TT'];
   hiddenColumnsFlag = false;
+  searchType = SearchType.searchAll;
   tableSource =  [
     {ID: 1,  KPI: 'Host', header: true},
     {ID: 2,  KPI: 'CPU', 'Y-Scale': 100, _YScaleGroup: 0, Unit: '%', Max: 25, Min: 11, Average: 10, Last: 5, First: 7, TT: 'tooltips2'},

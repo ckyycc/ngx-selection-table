@@ -1,7 +1,6 @@
 import {SelectionTableComponent} from './selection-table.component';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
-import {ComponentRef} from '@angular/core';
 const tableSource =  [
   {ID: 1, KPI: 'Host', header: true},
   {ID: 2, KPI: 'CPU', 'Y-Scale': 100, _YScaleGroup: 0, Unit: '%', Max: 9, CK: 'TEST tooltips2'},
@@ -46,101 +45,94 @@ describe('SelectionTableComponent', () => {
   beforeEach(() => {
 
     TestBed.configureTestingModule({
-      imports: [SelectionTableComponent, FormsModule]
+      imports:      [ FormsModule, SelectionTableComponent ],
+      declarations: []
     });
     fixture = TestBed.createComponent(SelectionTableComponent);
     comp = fixture.componentInstance;
-    
-    // Set inputs using the new signal-based approach
-    fixture.componentRef.setInput('tableSource', tableSource);
-    fixture.componentRef.setInput('keyColumn', 'ID');
-    fixture.componentRef.setInput('searchColumn', 'KPI');
-    fixture.componentRef.setInput('hiddenColumns', ['_YScaleGroup', 'ID', 'CK']);
-    fixture.componentRef.setInput('checkbox', true);
-    
+    comp.tableSource = tableSource;
+    comp.keyColumn = 'ID';
+    comp.searchColumn = 'KPI';
+    comp.hiddenColumns = ['_YScaleGroup', 'ID', 'CK'];
+    comp.checkbox = true;
     fixture.detectChanges();
   });
 
   it('#onChange() should toggle the check value', () => {
     // toggle value
-    const tableSource = comp.tableSource();
-    const checked1 = tableSource[1].checked;
-    comp.change.subscribe(event => expect(event.tableRow[comp.key()]).toEqual(tableSource[1][comp.key()]));
+    const checked1 = comp.tableSource[1].checked;
+    comp.change.subscribe(event => expect(event.tableRow[comp.key]).toEqual(comp.tableSource[1][comp.key]));
 
-    comp.onChange({}, tableSource[1]);
-    const checked1After = tableSource[1].checked;
+    comp.onChange({}, comp.tableSource[1]);
+    const checked1After = comp.tableSource[1].checked;
 
-    const checked2 = tableSource[1].checked;
-    comp.onChange({}, tableSource[1]);
-    const checked2After = tableSource[1].checked;
+    const checked2 = comp.tableSource[1].checked;
+    comp.onChange({}, comp.tableSource[1]);
+    const checked2After = comp.tableSource[1].checked;
 
     expect([checked1After, checked2After]).toEqual([!checked1, !checked2]);
   });
 
   it('#onChange() can select multiple rows if multiSelection is true', () => {
     // toggle value
-    const tableSource = comp.tableSource();
-    tableSource[1].checked = false;
-    tableSource[2].checked = false;
-    comp.onChange({}, tableSource[1]);
-    comp.onChange({}, tableSource[2]);
-    const checked1After = tableSource[1].checked;
-    const checked2After = tableSource[2].checked;
+    comp.tableSource[1].checked = false;
+    comp.tableSource[2].checked = false;
+    comp.onChange({}, comp.tableSource[1]);
+    comp.onChange({}, comp.tableSource[2]);
+    const checked1After = comp.tableSource[1].checked;
+    const checked2After = comp.tableSource[2].checked;
     expect([checked1After, checked2After]).toEqual([true, true]);
   });
 
   it('#onChange() only can select single row if multiSelection is false/null', () => {
 
     // toggle value
-    fixture.componentRef.setInput('multiSelection', false);
-    fixture.detectChanges();
-    
-    const tableSource = comp.tableSource();
-    comp.onChange({}, tableSource[3]);
-    comp.onChange({}, tableSource[4]);
-    const checked1After = tableSource[3].checked;
-    const checked2After = tableSource[4].checked;
+    comp.multiSelection = false;
+    comp.onChange({}, comp.tableSource[3]);
+    comp.onChange({}, comp.tableSource[4]);
+    const checked1After = comp.tableSource[3].checked;
+    const checked2After = comp.tableSource[4].checked;
     expect([checked1After, checked2After]).toEqual([false, true]);
   });
 
   it('#tableSourceAfterFiltered() searchType: searchInChildren', () => {
-    fixture.componentRef.setInput('searchStyle', 'searchInChildren');
-    fixture.detectChanges();
-    
+    // @ts-ignore
+    comp.searchStyle = 'searchInChildren';
     // search subtitle like "Host" should return empty
-    comp.filterValue.set('Host');
-    expect(comp.tableSourceAfterFiltered()).toEqual([]);
+    comp.filterValue = 'Host';
+    expect(comp.tableSourceAfterFiltered).toEqual([]);
     // search "thread" should return Active Threads, Waiting Threads, Total Threads and Threads
-    comp.filterValue.set('thread');
-    expect(comp.tableSourceAfterFiltered()).toEqual(comp.tableSource().slice(27, 31));
+    comp.filterValue = 'thread';
+    expect(comp.tableSourceAfterFiltered).toEqual(comp.tableSource.slice(27, 31));
   });
 
   it('#tableSourceAfterFiltered() searchType: searchWithSubHeader', () => {
-    fixture.componentRef.setInput('searchStyle', 'searchWithSubHeader');
-    fixture.detectChanges();
-    
+    // @ts-ignore
+    comp.searchStyle = 'searchWithSubHeader';
     // search subtitle like "Host" should return subtitle: Host row only
-    comp.filterValue.set('Host');
-    expect(comp.tableSourceAfterFiltered()).toEqual([comp.tableSource()[0]]);
+    comp.filterValue = 'Host';
+    expect(comp.tableSourceAfterFiltered).toEqual([comp.tableSource[0]]);
     // search "thread" should return Active Threads, Waiting Threads, Total Threads and Threads
-    comp.filterValue.set('thread');
-    expect(comp.tableSourceAfterFiltered()).toEqual(comp.tableSource().slice(27, 31));
+    comp.filterValue = 'thread';
+    expect(comp.tableSourceAfterFiltered).toEqual(comp.tableSource.slice(27, 31));
   });
 
   it('#tableSourceAfterFiltered() searchType: searchAll', () => {
-    fixture.componentRef.setInput('searchStyle', 'searchAll');
-    fixture.detectChanges();
-    
+    // @ts-ignore
+    comp.searchStyle = 'searchAll';
     // search subtitle like "Host" should return subtitle: Host row + all the children rows
-    comp.filterValue.set('Host');
-    expect(comp.tableSourceAfterFiltered()).toEqual(comp.tableSource().slice(0, 13));
+    comp.filterValue = 'Host';
+    expect(comp.tableSourceAfterFiltered).toEqual(comp.tableSource.slice(0, 13));
     // search "thread" should return Threads and all sub items.
-    comp.filterValue.set('thread');
-    expect(comp.tableSourceAfterFiltered()).toEqual(comp.tableSource().slice(27, 34));
+    comp.filterValue = 'thread';
+    expect(comp.tableSourceAfterFiltered).toEqual(comp.tableSource.slice(27, 34));
 
     // search " thread" should return Active Threads, Waiting Threads, Total Threads and Threads
-    comp.filterValue.set(' thread');
-    expect(comp.tableSourceAfterFiltered()).toEqual(comp.tableSource().slice(27, 31));
+    comp.filterValue = ' thread';
+    expect(comp.tableSourceAfterFiltered).toEqual(comp.tableSource.slice(27, 31));
   });
 
 });
+
+
+
